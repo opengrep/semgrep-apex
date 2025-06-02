@@ -2,7 +2,7 @@
 (include_subdirs qualified)
 
 (library
-  (public_name tree-sitter-lang-pro.apex)
+  (public_name tree-sitter-lang.apex)
   (name tree_sitter_apex)
   (libraries atdgen-runtime tree-sitter.run)
 

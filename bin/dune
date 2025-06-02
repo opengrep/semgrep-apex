@@ -1,6 +1,6 @@
 (executable
-  (package tree-sitter-lang-pro)
+  (package tree-sitter-lang)
   (public_name parse-apex)
   (name Main)
-  (libraries tree-sitter-lang-pro.apex)
+  (libraries tree-sitter-lang.apex)
 )
