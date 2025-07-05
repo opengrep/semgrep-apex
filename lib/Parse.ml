@@ -28,6 +28,13 @@ let parse_source_string ?src_file contents =
         (Domain.DLS.get ts_parser)
         contents)
 
+let parse_source_file src_file =
+  Fun.protect ~finally:Fun.id (* reset_parser *)
+    (fun () ->
+      Tree_sitter_parsing.parse_source_file
+        (Domain.DLS.get ts_parser)
+        src_file)
+
 let extras = [
   "line_comment";
   "block_comment";
