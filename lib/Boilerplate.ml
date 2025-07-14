@@ -3118,11 +3118,8 @@ and map_primary_expression (env : env) (x : CST.primary_expression) =
         )
       )
     )
-  | `Semg_deep_exp (v1, v2, v3) -> R.Case ("Semg_deep_exp",
-      let v1 = (* "<..." *) token env v1 in
-      let v2 = map_expression env v2 in
-      let v3 = (* "...>" *) token env v3 in
-      R.Tuple [v1; v2; v3]
+  | `Semg_deep_exp x -> R.Case ("Semg_deep_exp",
+      map_semgrep_deep_expression env x
     )
   )
 
@@ -3135,6 +3132,15 @@ and map_query_expression (env : env) ((v1, v2, v3) : CST.query_expression) =
       )
     | `Sosl_query x -> R.Case ("Sosl_query",
         map_sosl_query env x
+      )
+    | `Semg_ellips tok -> R.Case ("Semg_ellips",
+        (* "..." *) token env tok
+      )
+    | `Semg_meta_ellips tok -> R.Case ("Semg_meta_ellips",
+        (* pattern \$\.\.\.[A-Z_][A-Z_0-9]* *) token env tok
+      )
+    | `Semg_deep_exp x -> R.Case ("Semg_deep_exp",
+        map_semgrep_deep_expression env x
       )
     )
   in
@@ -3246,6 +3252,12 @@ and map_selected_fields (env : env) ((v1, v2) : CST.selected_fields) =
     ) v2)
   in
   R.Tuple [v1; v2]
+
+and map_semgrep_deep_expression (env : env) ((v1, v2, v3) : CST.semgrep_deep_expression) =
+  let v1 = (* "<..." *) token env v1 in
+  let v2 = map_expression env v2 in
+  let v3 = (* "...>" *) token env v3 in
+  R.Tuple [v1; v2; v3]
 
 and map_simple_type (env : env) (x : CST.simple_type) =
   (match x with

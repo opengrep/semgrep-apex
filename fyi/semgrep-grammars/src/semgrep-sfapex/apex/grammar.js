@@ -159,6 +159,8 @@ module.exports = grammar(base_grammar, {
       previous
     ),
 
+    query_expression: ($) => seq("[", choice($.soql_query, $.sosl_query, $.semgrep_ellipsis, $.semgrep_metavar_ellipsis, $.semgrep_deep_expression), "]"),
+
     // interface X { ... }
     interface_body: ($) => seq(
       "{",

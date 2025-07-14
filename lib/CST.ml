@@ -1471,14 +1471,18 @@ and primary_expression = [
       | `Map_crea_exp of map_creation_expression
       | `Query_exp of query_expression
     ]
-  | `Semg_deep_exp of (
-        Token.t (* "<..." *) * expression * Token.t (* "...>" *)
-    )
+  | `Semg_deep_exp of semgrep_deep_expression
 ]
 
 and query_expression = (
     Token.t (* "[" *)
-  * [ `Soql_query of soql_query | `Sosl_query of sosl_query ]
+  * [
+        `Soql_query of soql_query
+      | `Sosl_query of sosl_query
+      | `Semg_ellips of Token.t (* "..." *)
+      | `Semg_meta_ellips of semgrep_metavar_ellipsis (*tok*)
+      | `Semg_deep_exp of semgrep_deep_expression
+    ]
   * Token.t (* "]" *)
 )
 
@@ -1530,6 +1534,10 @@ and selectable_expression = [
 and selected_fields = (
     selectable_expression
   * (Token.t (* "," *) * selectable_expression) list (* zero or more *)
+)
+
+and semgrep_deep_expression = (
+    Token.t (* "<..." *) * expression * Token.t (* "...>" *)
 )
 
 and simple_type = [
@@ -1962,10 +1970,6 @@ type not_expression (* inlined *) = (pat_not * condition_expression)
 type or_expression (* inlined *) = (
     condition_expression
   * (pat_or * condition_expression) list (* one or more *)
-)
-
-type semgrep_deep_expression (* inlined *) = (
-    Token.t (* "<..." *) * expression * Token.t (* "...>" *)
 )
 
 type set_comparison (* inlined *) = (

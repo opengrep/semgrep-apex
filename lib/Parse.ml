@@ -13,27 +13,20 @@
 open Tree_sitter_bindings
 open Tree_sitter_run
 
+let debug = ref false
+
 type mt = Run.matcher_token
 
 external create_parser :
   unit -> Tree_sitter_API.ts_parser = "octs_create_parser_apex"
 
-(* NOTE: Ok because we run one target per domain at any 1 time. *)
-let ts_parser = Domain.DLS.new_key create_parser
+let ts_parser = create_parser ()
 
 let parse_source_string ?src_file contents =
-  Fun.protect ~finally:Fun.id (* reset_parser *)
-    (fun () ->
-      Tree_sitter_parsing.parse_source_string ?src_file
-        (Domain.DLS.get ts_parser)
-        contents)
+  Tree_sitter_parsing.parse_source_string ?src_file ts_parser contents
 
 let parse_source_file src_file =
-  Fun.protect ~finally:Fun.id (* reset_parser *)
-    (fun () ->
-      Tree_sitter_parsing.parse_source_file
-        (Domain.DLS.get ts_parser)
-        src_file)
+  Tree_sitter_parsing.parse_source_file ts_parser src_file
 
 let extras = [
   "line_comment";
@@ -2244,6 +2237,9 @@ let children_regexps : (string * Run.exp option) list = [
       Alt [|
         Token (Name "soql_query");
         Token (Name "sosl_query");
+        Token (Name "semgrep_ellipsis");
+        Token (Name "semgrep_metavar_ellipsis");
+        Token (Name "semgrep_deep_expression");
       |];
       Token (Literal "]");
     ];
@@ -8408,6 +8404,18 @@ and trans_query_expression ((kind, body) : mt) : CST.query_expression =
             | Alt (1, v) ->
                 `Sosl_query (
                   trans_sosl_query (Run.matcher_token v)
+                )
+            | Alt (2, v) ->
+                `Semg_ellips (
+                  trans_semgrep_ellipsis (Run.matcher_token v)
+                )
+            | Alt (3, v) ->
+                `Semg_meta_ellips (
+                  trans_semgrep_metavar_ellipsis (Run.matcher_token v)
+                )
+            | Alt (4, v) ->
+                `Semg_deep_exp (
+                  trans_semgrep_deep_expression (Run.matcher_token v)
                 )
             | _ -> assert false
             )
