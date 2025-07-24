@@ -13,20 +13,26 @@
 open Tree_sitter_bindings
 open Tree_sitter_run
 
-let debug = ref false
-
 type mt = Run.matcher_token
 
 external create_parser :
   unit -> Tree_sitter_API.ts_parser = "octs_create_parser_apex"
 
-let ts_parser = create_parser ()
+let ts_parser = Domain.DLS.new_key create_parser
 
 let parse_source_string ?src_file contents =
-  Tree_sitter_parsing.parse_source_string ?src_file ts_parser contents
+  Fun.protect ~finally:Fun.id (* reset_parser *)
+    (fun () ->
+      Tree_sitter_parsing.parse_source_string ?src_file
+        (Domain.DLS.get ts_parser)
+        contents)
 
 let parse_source_file src_file =
-  Tree_sitter_parsing.parse_source_file ts_parser src_file
+  Fun.protect ~finally:Fun.id (* reset_parser *)
+    (fun () ->
+      Tree_sitter_parsing.parse_source_file
+        (Domain.DLS.get ts_parser)
+        src_file)
 
 let extras = [
   "line_comment";
